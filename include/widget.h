@@ -31,6 +31,10 @@ public slots:
 private slots:
     void on_pushButton_clicked();
 
+    void on_checkBox_stateChanged(int arg1);
+
+    void on_checkBox_2_stateChanged(int arg1);
+
 private:
     float filter(float y);
     Ui::Widget *ui;

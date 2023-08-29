@@ -11,7 +11,7 @@ Widget::Widget(QWidget *parent)
     , ui(new Ui::Widget)
 {
     ui->setupUi(this);
-    this->x_size = 10000;
+    this->x_size = 60000;
     this->filter_alogrim = new HL_SimpleKalmanFilter(1,2,1);
     this->notch_filter = new notchfilter(this->x_size,50,5);
 
@@ -81,10 +81,10 @@ void Widget::timeout()
         this->series_filter->replace(this->buff_filter);
         this->chart->axisX()->setRange(this->series->at(0).x(),this->series->at(this->x_size-1).x());
         this->chart->axisY()->setRange(this->min_y-3,this->max_y+3);
-        for(uint32_t i = 0;i<this->x_size;i++){
-            this->buff.remove(0);
-            this->buff_filter.remove(0);
-        }
+//        for(uint32_t i = 0;i<this->x_size;i++){
+//            this->buff.remove(0);
+//            this->buff_filter.remove(0);
+//        }
 
         frameCount++;
 
@@ -107,8 +107,8 @@ void Widget::gen_data()
         float y = 5*sin(this->x*3.14/180) + (rand() % ((2 + 1) - (-2)) + (-2));
         float y_fil = this->filter(y);
         this->x++;
-        this->buff.append(QPointF(this->x,y));
-        this->buff_filter.append(QPointF(this->x,y_fil));
+        this->buff.replace(i,QPointF(this->x,y));
+        this->buff_filter.replace(i,QPointF(this->x,y_fil));
         if(this->min_y > y) this->min_y = y;
         if(this->max_y < y) this->max_y = y;
     }
@@ -116,12 +116,9 @@ void Widget::gen_data()
 
 float Widget::filter(float y)
 {
-
     double fil = this->filter_alogrim->update(y);
-
     return (float) this->notch_filter->step(fil);
 }
-
 
 void Widget::on_pushButton_clicked()
 {
@@ -132,6 +129,28 @@ void Widget::on_pushButton_clicked()
     else{
         timer_gen_data->stop();
         ui->pushButton->setText("start");
+    }
+}
+
+
+void Widget::on_checkBox_stateChanged(int arg1)
+{
+    if(arg1){
+        this->series->show();
+    }
+    else{
+        this->series->hide();
+    }
+}
+
+
+void Widget::on_checkBox_2_stateChanged(int arg1)
+{
+    if(arg1){
+        this->series_filter->show();
+    }
+    else{
+        this->series_filter->hide();
     }
 }
 
